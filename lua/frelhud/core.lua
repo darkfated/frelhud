@@ -159,7 +159,7 @@ hook.Add( 'HUDPaint', 'Freline-hud', function()
 	// LICENSE
 	if ( LocalPlayer():getDarkRPVar( 'HasGunlicense' ) ) then
 		surface.SetMaterial( mat_gun )
-		surface.DrawTexturedRect( Retreat, scrh - 64 - Retreat - 64 - Retreat - 28 - 28 - 6 - 6 - 8, 64, 64 )
+		surface.DrawTexturedRect( Retreat, scrh - 64 - Retreat - 64 - 15 - 28 - 28 - 6 - 6 - 8, 64, 64 )
 	end
 
 	// LOCKDOWN
