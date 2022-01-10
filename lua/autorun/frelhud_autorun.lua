@@ -1,8 +1,8 @@
 local inc = SERVER and AddCSLuaFile or include
 
 if ( SERVER ) then
-	resource.AddFile( 'materials/frelhud/armor.png' )
-	resource.AddFile( 'materials/frelhud/scar.png' )
+	resource.AddFile( 'materials/frelhud/panoply.png' )
+	resource.AddFile( 'materials/frelhud/health-note.png' )
 	resource.AddFile( 'materials/frelhud/micro.png' )
 	resource.AddFile( 'materials/frelhud/gun.png' )
 	resource.AddFile( 'materials/frelhud/lockdown.png' )
@@ -11,7 +11,7 @@ if ( SERVER ) then
 	resource.AddFile( 'materials/frelhud/money.png' )
 	resource.AddFile( 'materials/frelhud/arrested.png' )
 	resource.AddFile( 'materials/frelhud/wanted.png' )
-	resource.AddFile( 'materials/frelhud/hunger.png' )
+	resource.AddFile( 'materials/frelhud/cutlery.png' )
 end
 
 inc( 'frelhud/config.lua' )
