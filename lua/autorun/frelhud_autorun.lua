@@ -8,7 +8,6 @@ if ( SERVER ) then
 	resource.AddFile( 'materials/frelhud/lockdown.png' )
 	resource.AddFile( 'materials/frelhud/death.png' )
 	resource.AddFile( 'materials/frelhud/ammo.png' )
-	resource.AddFile( 'materials/frelhud/money.png' )
 	resource.AddFile( 'materials/frelhud/arrested.png' )
 	resource.AddFile( 'materials/frelhud/wanted.png' )
 	resource.AddFile( 'materials/frelhud/cutlery.png' )
