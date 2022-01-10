@@ -69,6 +69,7 @@ local function HudDrawPlayerInfo( player )
 end
 
 local Retreat = 0
+local money_smooth, armor_smooth, hunger_smooth = 0, 0, 0
 
 hook.Add( 'HUDPaint', 'Freline-hud', function()
 	if ( not LocalPlayer():Alive() ) then
@@ -118,13 +119,17 @@ hook.Add( 'HUDPaint', 'Freline-hud', function()
 	draw.SimpleText( txt, 'fh-font', Retreat + 6, scrh - Retreat - 6 - 64 - 16, FrelHudConfig.Colors.text_color, 0, 1 )
 
 	// HEALTH
+	local health = math.Clamp( LocalPlayer():Health(), 0, LocalPlayer():GetMaxHealth() ) / LocalPlayer():GetMaxHealth() * 100
+
+	money_smooth = Lerp( 8 * FrameTime(), money_smooth or 0, health or 0 )
+
 	draw.RoundedBox( 8, Retreat + 32, scrh - 64 - Retreat + 20, 94, 28, FrelHudConfig.Colors.background )
 
 	surface.SetDrawColor( ColorWhite )
 	surface.SetMaterial( mat_health )
 	surface.DrawTexturedRect( Retreat, scrh - 64 - Retreat, 64, 64 )
 
-	draw.SimpleText( LocalPlayer():Health() .. '%', 'fh-font', Retreat + 64 + 36 - 6, scrh - Retreat - 32 + 2, FrelHudConfig.Colors.text_color, 1, 1 )
+	draw.SimpleText( math.ceil( money_smooth ) .. '%', 'fh-font', Retreat + 64 + 36 - 6, scrh - Retreat - 32 + 2, FrelHudConfig.Colors.text_color, 1, 1 )
 
 	// ARMOR
 	if ( LocalPlayer():Armor() > 0 ) then
@@ -134,7 +139,11 @@ hook.Add( 'HUDPaint', 'Freline-hud', function()
 		surface.SetMaterial( mat_armor )
 		surface.DrawTexturedRect( Retreat + 64 + 64 + 6, scrh - 64 - Retreat, 64, 64 )
 
-		draw.SimpleText( LocalPlayer():Armor() .. '%', 'fh-font', Retreat + 64 + 36 + 94 + 32 + 2, scrh - Retreat - 32 + 2, FrelHudConfig.Colors.text_color, 1, 1 )
+		local armor = math.Clamp( LocalPlayer():Armor(), 0, LocalPlayer():GetMaxArmor() ) / LocalPlayer():GetMaxArmor() * 100
+
+		armor_smooth = Lerp( 8 * FrameTime(), armor_smooth or 0, armor or 0 )
+
+		draw.SimpleText( math.ceil( armor_smooth ) .. '%', 'fh-font', Retreat + 64 + 36 + 94 + 32 + 2, scrh - Retreat - 32 + 2, FrelHudConfig.Colors.text_color, 1, 1 )
 	end
 
 	// HUNGER MODE
@@ -145,7 +154,11 @@ hook.Add( 'HUDPaint', 'Freline-hud', function()
 		surface.SetMaterial( mat_hunger )
 		surface.DrawTexturedRect( Retreat + 64 + 64 + 6 + ( LocalPlayer():Armor() > 0 and 64 + 94 - 26 or 0 ), scrh - 64 - Retreat, 64, 64 )
 
-		draw.SimpleText( ( LocalPlayer():getDarkRPVar( 'Energy' ) or 34 ) .. '%', 'fh-font', Retreat + 64 + 36 + 94 + 32 + 2 + ( LocalPlayer():Armor() > 0 and 64 + 94 - 26 or 0 ), scrh - Retreat - 32 + 2, FrelHudConfig.Colors.text_color, 1, 1 )
+		local hunger = math.Clamp( LocalPlayer():getDarkRPVar( 'Energy' ) or 0, 0, 100 )
+
+		hunger_smooth = Lerp( 8 * FrameTime(), hunger_smooth or 0, hunger or 0 )
+
+		draw.SimpleText( math.ceil( hunger_smooth ) .. '%', 'fh-font', Retreat + 64 + 36 + 94 + 32 + 2 + ( LocalPlayer():Armor() > 0 and 64 + 94 - 26 or 0 ), scrh - Retreat - 32 + 2, FrelHudConfig.Colors.text_color, 1, 1 )
 	end
 
 	// MICROPHONE
