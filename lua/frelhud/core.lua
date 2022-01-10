@@ -75,8 +75,10 @@ hook.Add( 'HUDPaint', 'Freline-hud', function()
 		Retreat = 0
 	end
 
-	if ( Retreat != 15 ) then
+	if ( Retreat < FrelHudConfig.Indentation ) then
 		Retreat = Retreat + 0.5
+	elseif ( Retreat > FrelHudConfig.Indentation ) then
+		Retreat = Retreat - 0.5
 	end
 
 	// CHECKS

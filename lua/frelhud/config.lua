@@ -5,6 +5,8 @@ FrelHudConfig.Colors = { -- Color palette
 	text_color = Color(241,241,241),
 }
 
+FrelHudConfig.Indentation = 15 -- Interface indentation from the edges of the screen
+
 FrelHudConfig.Language = {
 	job = 'Job',
 	wallet = 'Wallet',
