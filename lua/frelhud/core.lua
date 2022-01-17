@@ -242,8 +242,9 @@ hook.Add( 'HUDPaint', 'Freline-hud', function()
 	if ( agenda and FrelHudConfig.Agenda ) then
 		local agenda_text = LocalPlayer():getDarkRPVar( 'agenda' ) or FrelHudConfig.Language.empty
 		local atext = DarkRP.textWrap( agenda_text, 'fh-font', 260 )
+		local a_w, a_h = surface.GetTextSize( atext )
 	  
-		draw.RoundedBox( 8, scrw - 300 - Retreat, Retreat, 300, 160, FrelHudConfig.Colors.background )
+		draw.RoundedBox( 8, scrw - 300 - Retreat, Retreat, 300, 30 + a_h + 10 + 4, FrelHudConfig.Colors.background )
 		draw.RoundedBox( 8, scrw - 300 - Retreat, Retreat, 300, 30, team.GetColor( LocalPlayer():Team() ) )
 		draw.RoundedBox( 0, scrw - 300 - Retreat, Retreat + 20, 300, 10, team.GetColor( LocalPlayer():Team() ) )
 	  
