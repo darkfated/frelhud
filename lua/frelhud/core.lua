@@ -239,7 +239,7 @@ hook.Add( 'HUDPaint', 'Freline-hud', function()
 	// AGENDA
 	local agenda = LocalPlayer():getAgendaTable()
 
-	if ( agenda ) then
+	if ( agenda and FrelHudConfig.Agenda ) then
 		local agenda_text = LocalPlayer():getDarkRPVar( 'agenda' ) or FrelHudConfig.Language.empty
 		local atext = DarkRP.textWrap( agenda_text, 'fh-font', 260 )
 	  
@@ -316,14 +316,6 @@ NOTIFY_UNDO	= 2
 NOTIFY_CLEANUP = 4
 NOTIFY_HINT = 4
 
-local notifyTypes = {
-	[ 0 ] = Color(255,128,51),
-	[ 1 ] = Color(225,0,0),
-	[ 2 ] = Color(51,128,255),
-	[ 3 ] = Color(0,215,15),
-	[ 4 ] = Color(136,61,255),
-}
-
 local Notices = {}
 
 function notification.AddProgress( uid, text )
@@ -365,7 +357,7 @@ function notification.AddLegacy( text, type, length )
 	
 	table.insert( Notices, Panel )
 
-	local color = notifyTypes[ type ]
+	local color = FrelHudConfig.Colors.notify[ type ]
 
 	MsgC( ColorWhite, '[', color, 'Notify', ColorWhite, '] ' .. text .. '\n' )
 
@@ -461,7 +453,7 @@ end
 
 function PANEL:Paint( w, h )
 	local timeleft = self.StartTime - ( SysTime() - self.Length )
-	local color = notifyTypes[ self.NotifyType ]
+	local color = FrelHudConfig.Colors.notify[ self.NotifyType ]
 
 	draw.RoundedBox( 6, 0, 0, w, h, FrelHudConfig.Colors.background )
 	draw.RoundedBox( 6, 0, 0, w * ( timeleft / self.Length ), h, color )
