@@ -1,3 +1,6 @@
+CreateClientConVar( 'frelhud_ind', 15, true )
+CreateClientConVar( 'frelhud_notify_sound', 1, true )
+
 surface.CreateFont( 'fh-font', { -- Font for the interface text
 	font = 'Arial',
 	extended = false,
@@ -75,9 +78,9 @@ hook.Add( 'HUDPaint', 'Freline-hud', function()
 		Retreat = 0
 	end
 
-	if ( Retreat < FrelHudConfig.Indentation ) then
+	if ( Retreat < GetConVar( 'frelhud_ind' ):GetInt() ) then
 		Retreat = Retreat + 0.5
-	elseif ( Retreat > FrelHudConfig.Indentation ) then
+	elseif ( Retreat > GetConVar( 'frelhud_ind' ):GetInt() ) then
 		Retreat = Retreat - 0.5
 	end
 
@@ -362,7 +365,9 @@ function notification.AddLegacy( text, type, length )
 
 	MsgC( ColorWhite, '[', color, 'Notify', ColorWhite, '] ' .. text .. '\n' )
 
-	surface.PlaySound( 'ambient/water/drip4.wav' )
+	if ( GetConVar( 'frelhud_notify_sound' ):GetBool() ) then
+		surface.PlaySound( 'ambient/water/drip4.wav' )
+	end
 end
 
 local function UpdateNotice( i, Panel, Count )
@@ -461,3 +466,12 @@ function PANEL:Paint( w, h )
 end
 
 vgui.Register( 'NoticePanel', PANEL, 'DPanel' )
+
+// Custom menu settings
+
+hook.Add( 'PopulateToolMenu', 'frelhud_tool', function()
+	spawnmenu.AddToolMenuOption( 'Utilities', 'User', 'frelhud', 'FrelHud', '', '', function( panel )
+		panel:AddControl( 'CheckBox', { Label = 'Notification sound', Command = 'frelhud_notify_sound' } )
+		panel:AddControl( 'Slider', { Label = 'Interface indentation from the edges of the screen', Type = 'Integer', Command = 'frelhud_ind', Min = 0, Max = 80 } )
+	end )
+end )
