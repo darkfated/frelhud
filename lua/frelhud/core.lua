@@ -21,42 +21,50 @@ local mat_micro = Material( 'frelhud/micro.png' )
 local mat_gun = Material( 'frelhud/gun.png' )
 local mat_lockdown = Material( 'frelhud/lockdown.png' )
 local mat_death = Material( 'frelhud/death.png' )
-local mat_ammo = Material( 'frelhud/ammo.png' )
 local mat_arrested = Material( 'frelhud/arrested.png' )
 local mat_wanted = Material( 'frelhud/wanted.png' )
 local mat_hunger = Material( 'frelhud/cutlery.png' )
 
-local function PlayerInfoText( text, pos )
-	draw.RoundedBox( 6, pos.x - surface.GetTextSize( text ) * 0.5 - 4, pos.y - 14, surface.GetTextSize( text ) + 8, 28, FrelHudConfig.Colors.background )
+local function HudDrawIconText( icon, x, y, font, text )
+	draw.RoundedBox( 8, x + 36, scrh - 36 - y - 18, surface.GetTextSize( text ) + 48, 36, FrelHudConfig.Colors.background ) -- Text bar
+	draw.RoundedBox( 100, x, scrh - 72 - y, 72, 72, FrelHudConfig.Colors.background ) -- Icon outline
+	
+	surface.SetDrawColor( ColorWhite )
+	surface.SetMaterial( icon )
+	surface.DrawTexturedRect( x + 4, scrh - 64 - y - 4, 64, 64 )
 
-	draw.SimpleText( text, 'fh-font', pos.x, pos.y, ColorWhite, 1, 1 )
+	draw.SimpleText( text, font, x + 76, scrh - 36 - y, FrelHudConfig.Colors.text_color, 0, 1 )
+
+	return surface.GetTextSize( text ) + 82
+end
+
+local function HudDrawText( x, y, font, text )
+	draw.RoundedBox( 8, x, scrh - y - 36, surface.GetTextSize( text ) + 20, 36, FrelHudConfig.Colors.background )
+
+	draw.SimpleText( text, font, x + surface.GetTextSize( text ) * 0.5 + 10, scrh - y - 18, FrelHudConfig.Colors.text_color, 1, 1 )
+end
+
+local function PlayerInfoText( text, pos )
+	HudDrawText( pos.x, scrh - pos.y, 'fh-font', text )
 end
 
 local function HudDrawPlayerInfo( player )
 	local pos = player:EyePos()
 
-	pos.z = pos.z + 14
+	pos.z = pos.z + 6
 	pos = pos:ToScreen()
 
 	// JOB
 	PlayerInfoText( player:getDarkRPVar( 'job' ), pos )
 
 	// NICK
-	pos.y = pos.y - 28 - 15
+	pos.y = pos.y - 36 - 15
 
-	local text = player:GetName()
-
-	draw.RoundedBox( 6, pos.x - surface.GetTextSize( text ) * 0.5 - 4, pos.y - 14 - 4, surface.GetTextSize( text ) + 8, 28, team.GetColor( player:Team() ) )
-
-	if ( player:getDarkRPVar( 'HasGunlicense' ) ) then
-		draw.RoundedBox( 6, pos.x - surface.GetTextSize( text ) * 0.5 - 4, pos.y - 14 + 4, surface.GetTextSize( text ) + 8, 28, ColorLicense )
-	end
-
-	PlayerInfoText( text, pos )
+	PlayerInfoText( player:GetName(), pos )
 
 	// ARRESTED
 	if ( player:getDarkRPVar( 'Arrested' ) ) then
-		pos.y = pos.y - 28 - 15
+		pos.y = pos.y - 36 - 15
 
 		PlayerInfoText( FrelHudConfig.Language.arrested, pos )
 	end
@@ -64,14 +72,14 @@ local function HudDrawPlayerInfo( player )
 	// WANTED
 
 	if ( player:getDarkRPVar( 'wanted' ) ) then
-		pos.y = pos.y - 28 - 15
+		pos.y = pos.y - 36 - 15
 
 		PlayerInfoText( FrelHudConfig.Language.wanted, pos )
 	end
 end
 
 local Retreat = 0
-local money_smooth, armor_smooth, hunger_smooth = 0, 0, 0
+local health_smooth, armor_smooth, hunger_smooth = 0, 0, 0
 
 hook.Add( 'HUDPaint', 'Freline-hud', function()
 	if ( not LocalPlayer():Alive() ) then
@@ -110,57 +118,42 @@ hook.Add( 'HUDPaint', 'Freline-hud', function()
 		return
 	end
 
-	// JOB
 	surface.SetFont( 'fh-font' )
+
+	// MONEY
+	local txt = FrelHudConfig.Language.wallet .. ': ' .. DarkRP.formatMoney( LocalPlayer():getDarkRPVar( 'money' ) )
+
+	HudDrawText( Retreat, Retreat + 15 + 72, 'fh-font', txt )
+
+	// JOB
 
 	local txt = FrelHudConfig.Language.job .. ': ' .. ( LocalPlayer():getDarkRPVar( 'job' ) or '' )
 
-	draw.RoundedBox( 8, Retreat, scrh - Retreat - 64 - 28 - 8 - 4, surface.GetTextSize( txt ) + 12, 28, team.GetColor( LocalPlayer():Team() ) )
-	draw.RoundedBox( 8, Retreat, scrh - Retreat - 64 - 28 - 8, surface.GetTextSize( txt ) + 12, 28, FrelHudConfig.Colors.background )
-
-	draw.SimpleText( txt, 'fh-font', Retreat + 6, scrh - Retreat - 6 - 64 - 16, FrelHudConfig.Colors.text_color, 0, 1 )
+	HudDrawText( Retreat, Retreat + 15 + 72 + 15 + 36, 'fh-font', txt )
 
 	// HEALTH
 	local health = math.Clamp( LocalPlayer():Health(), 0, LocalPlayer():GetMaxHealth() ) / LocalPlayer():GetMaxHealth() * 100
 
-	money_smooth = Lerp( 8 * FrameTime(), money_smooth or 0, health or 0 )
+	health_smooth = Lerp( 8 * FrameTime(), health_smooth or 0, health or 0 )
 
-	draw.RoundedBox( 8, Retreat + 32, scrh - 64 - Retreat + 20, 94, 28, FrelHudConfig.Colors.background )
-
-	surface.SetDrawColor( ColorWhite )
-	surface.SetMaterial( mat_health )
-	surface.DrawTexturedRect( Retreat, scrh - 64 - Retreat, 64, 64 )
-
-	draw.SimpleText( math.ceil( money_smooth ) .. '%', 'fh-font', Retreat + 64 + 36 - 6, scrh - Retreat - 32 + 2, FrelHudConfig.Colors.text_color, 1, 1 )
-
-	// ARMOR
-	if ( LocalPlayer():Armor() > 0 ) then
-		draw.RoundedBox( 8, Retreat + 32 + 32 + 94 + 6 + 2, scrh - 64 - Retreat + 20, 94, 28, FrelHudConfig.Colors.background )
-
-		surface.SetDrawColor( ColorWhite )
-		surface.SetMaterial( mat_armor )
-		surface.DrawTexturedRect( Retreat + 64 + 64 + 6, scrh - 64 - Retreat, 64, 64 )
-
-		local armor = math.Clamp( LocalPlayer():Armor(), 0, LocalPlayer():GetMaxArmor() ) / LocalPlayer():GetMaxArmor() * 100
-
-		armor_smooth = Lerp( 8 * FrameTime(), armor_smooth or 0, armor or 0 )
-
-		draw.SimpleText( math.ceil( armor_smooth ) .. '%', 'fh-font', Retreat + 64 + 36 + 94 + 32 + 2, scrh - Retreat - 32 + 2, FrelHudConfig.Colors.text_color, 1, 1 )
-	end
+	local PanelHealth = HudDrawIconText( mat_health, Retreat, Retreat, 'fh-font', math.ceil( health_smooth ) .. '%' )
 
 	// HUNGER MODE
 	if ( FrelHudConfig.HungerMode ) then
-		draw.RoundedBox( 8, Retreat + 32 + 32 + 94 + 6 + 2 + ( LocalPlayer():Armor() > 0 and 64 + 94 - 26 or 0 ), scrh - 64 - Retreat + 20, 94, 28, FrelHudConfig.Colors.background )
-
-		surface.SetDrawColor( ColorWhite )
-		surface.SetMaterial( mat_hunger )
-		surface.DrawTexturedRect( Retreat + 64 + 64 + 6 + ( LocalPlayer():Armor() > 0 and 64 + 94 - 26 or 0 ), scrh - 64 - Retreat, 64, 64 )
-
 		local hunger = math.Clamp( LocalPlayer():getDarkRPVar( 'Energy' ) or 0, 0, 100 )
 
 		hunger_smooth = Lerp( 8 * FrameTime(), hunger_smooth or 0, hunger or 0 )
 
-		draw.SimpleText( math.ceil( hunger_smooth ) .. '%', 'fh-font', Retreat + 64 + 36 + 94 + 32 + 2 + ( LocalPlayer():Armor() > 0 and 64 + 94 - 26 or 0 ), scrh - Retreat - 32 + 2, FrelHudConfig.Colors.text_color, 1, 1 )
+		local PanelHunger = HudDrawIconText( mat_hunger, Retreat + PanelHealth + 15, Retreat, 'fh-font', math.ceil( hunger_smooth ) .. '%' )
+	end
+
+	// ARMOR
+	if ( LocalPlayer():Armor() > 0 ) then
+		local armor = math.Clamp( LocalPlayer():Armor(), 0, LocalPlayer():GetMaxArmor() ) / LocalPlayer():GetMaxArmor() * 100
+
+		armor_smooth = Lerp( 8 * FrameTime(), armor_smooth or 0, armor or 0 )
+
+		local PanelArmor = HudDrawIconText( mat_armor, Retreat + PanelHealth + 15 + ( FrelHudConfig.HungerMode and PanelHunger + 15 or 0 ), Retreat, 'fh-font', math.ceil( armor_smooth ) .. '%' )
 	end
 
 	// MICROPHONE
@@ -174,7 +167,7 @@ hook.Add( 'HUDPaint', 'Freline-hud', function()
 	// LICENSE
 	if ( LocalPlayer():getDarkRPVar( 'HasGunlicense' ) ) then
 		surface.SetMaterial( mat_gun )
-		surface.DrawTexturedRect( Retreat, scrh - 64 - Retreat - 64 - 15 - 28 - 28 - 6 - 6 - 8, 64, 64 )
+		surface.DrawTexturedRect( Retreat, scrh - Retreat - 72 - 15 - 36 - 15 - 36 - 15 - 64, 64, 64 )
 	end
 
 	// LOCKDOWN
@@ -196,47 +189,29 @@ hook.Add( 'HUDPaint', 'Freline-hud', function()
 	if ( wepAmmo > 0 or wepClip > 0 ) then
 		local txt = wepClip .. '/' .. wepAmmo
 
-		draw.RoundedBox( 8, scrw - Retreat - 64 - surface.GetTextSize( txt ) - Retreat - 4, scrh - Retreat - 32 - 14, surface.GetTextSize( txt ) + 8, 28, FrelHudConfig.Colors.background )
-
-		surface.SetDrawColor( ColorWhite )
-		surface.SetMaterial( mat_ammo )
-		surface.DrawTexturedRect( scrw - 64 - Retreat, scrh - 64 - Retreat, 64, 64 )
-	
-		draw.SimpleText( txt, 'fh-font', scrw - 64 - Retreat - surface.GetTextSize( txt ) - Retreat, scrh - Retreat - 32, FrelHudConfig.Colors.text_color, 0, 1 )
+		HudDrawText( scrw - surface.GetTextSize( txt ) - Retreat - 18, Retreat, 'fh-font', txt )
 	end
-
-	// MONEY
-	local txt = FrelHudConfig.Language.wallet .. ': ' .. DarkRP.formatMoney( LocalPlayer():getDarkRPVar( 'money' ) )
-
-	draw.RoundedBox( 8, Retreat, scrh - Retreat - 64 - 28 - 8 - 28 - 4 - 8 - 4, surface.GetTextSize( txt ) + 12, 28, team.GetColor( LocalPlayer():Team() ) )
-	draw.RoundedBox( 8, Retreat, scrh - Retreat - 64 - 28 - 8 - 28 - 4 - 8, surface.GetTextSize( txt ) + 12, 28, FrelHudConfig.Colors.background )
-
-	draw.SimpleText( txt, 'fh-font', Retreat + 6, scrh - Retreat - 6 - 64 - 16 - 28 - 8 - 4, FrelHudConfig.Colors.text_color, 0, 1 )
 
 	// ARRESTED
 	if ( LocalPlayer():getDarkRPVar( 'Arrested' ) ) then
 		local txt = FrelHudConfig.Language.arrested
 
-		draw.RoundedBox( 8, Retreat + 64 + 15 - 4, Retreat + 32 - 14, surface.GetTextSize( txt ) + 8, 28, FrelHudConfig.Colors.background )
-
 		surface.SetDrawColor( ColorWhite )
 		surface.SetMaterial( mat_arrested )
 		surface.DrawTexturedRect( Retreat, Retreat, 64, 64 )
 
-		draw.SimpleText( txt, 'fh-font', Retreat + 64 + 15, Retreat + 32, FrelHudConfig.Colors.text_color, 0, 1 )
+		HudDrawText( Retreat + 64 + 15, scrh - Retreat - 32 - 15, 'fh-font', txt )
 	end
 
 	// WANTED
 	if ( LocalPlayer():getDarkRPVar( 'wanted' ) ) then
 		local txt = FrelHudConfig.Language.wanted
 
-		draw.RoundedBox( 8, Retreat + 64 + 15 - 4, Retreat + 32 - 14 + ( LocalPlayer():getDarkRPVar( 'Arrested' ) and Retreat + 64 or 0 ), surface.GetTextSize( txt ) + 8, 28, FrelHudConfig.Colors.background )
-
 		surface.SetDrawColor( ColorWhite )
 		surface.SetMaterial( mat_wanted )
 		surface.DrawTexturedRect( Retreat, Retreat + ( LocalPlayer():getDarkRPVar( 'Arrested' ) and Retreat + 64 or 0 ), 64, 64 )
 
-		draw.SimpleText( txt, 'fh-font', Retreat + 64 + 15, Retreat + 32 + ( LocalPlayer():getDarkRPVar( 'Arrested' ) and Retreat + 64 or 0 ), FrelHudConfig.Colors.text_color, 0, 1 )
+		HudDrawText( Retreat + 64 + 15, scrh - Retreat - 32 - 15 - ( LocalPlayer():getDarkRPVar( 'Arrested' ) and Retreat + 64 or 0 ), 'fh-font', txt )
 	end
 
 	// AGENDA
@@ -373,9 +348,9 @@ end
 local function UpdateNotice( i, Panel, Count )
 	local x = Panel.fx
 	local y = Panel.fy
-	local w = Panel:GetWide() + 16
-	local h = Panel:GetTall() + 16
-	local ideal_y = ScrH() - ( Count - i ) * ( h - 12 ) - 15 - h
+	local w = Panel:GetWide()
+	local h = Panel:GetTall() + Retreat + 18 + 15
+	local ideal_y = ScrH() - ( Count - i ) * ( h - 18 - 15 ) - 15 - h
 	local ideal_x = ScrW() - w - 15
 	local timeleft = Panel.StartTime - ( SysTime() - Panel.Length )
 
@@ -430,7 +405,7 @@ function PANEL:Init()
 	self.Label = vgui.Create( 'DLabel', self )
 	self.Label:SetFont( 'fh-font' )
 	self.Label:SetTextColor( ColorWhite )
-	self.Label:SetPos( 5, 2 )
+	self.Label:SetPos( 8, 6 )
 end
 
 function PANEL:SetText( txt )
@@ -442,8 +417,8 @@ end
 function PANEL:SizeToContents()
 	self.Label:SizeToContents()
 
-	self:SetWidth( self.Label:GetWide() + 10 )
-	self:SetHeight( 28 )
+	self:SetWidth( self.Label:GetWide() + 16 )
+	self:SetHeight( 36 )
 	self:InvalidateLayout()
 end
 
@@ -461,8 +436,8 @@ function PANEL:Paint( w, h )
 	local timeleft = self.StartTime - ( SysTime() - self.Length )
 	local color = FrelHudConfig.Colors.notify[ self.NotifyType ]
 
-	draw.RoundedBox( 6, 0, 0, w, h, FrelHudConfig.Colors.background )
-	draw.RoundedBox( 6, 0, 0, w * ( timeleft / self.Length ), h, color )
+	draw.RoundedBox( 8, 0, 0, w, h, FrelHudConfig.Colors.background )
+	draw.RoundedBox( 8, 0, 0, w * ( timeleft / self.Length ), h, color )
 end
 
 vgui.Register( 'NoticePanel', PANEL, 'DPanel' )
