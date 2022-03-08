@@ -82,6 +82,10 @@ local Retreat = 0
 local health_smooth, armor_smooth, hunger_smooth = 0, 0, 0
 
 hook.Add( 'HUDPaint', 'Freline-hud', function()
+	if ( not DarkRP ) then
+		return
+	end
+
 	if ( not LocalPlayer():Alive() ) then
 		Retreat = 0
 	end
