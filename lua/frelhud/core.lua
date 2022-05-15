@@ -140,7 +140,7 @@ hook.Add( 'HUDPaint', 'Freline-hud', function()
 
 	health_smooth = Lerp( 8 * FrameTime(), health_smooth or 0, health or 0 )
 
-	local PanelHealth = HudDrawIconText( mat_health, Retreat, Retreat, 'fh-font', math.ceil( health_smooth ) .. '%' )
+	FrelHudPanelHealth = HudDrawIconText( mat_health, Retreat, Retreat, 'fh-font', math.ceil( health_smooth ) .. '%' )
 
 	// HUNGER MODE
 	if ( FrelHudConfig.HungerMode ) then
@@ -148,7 +148,7 @@ hook.Add( 'HUDPaint', 'Freline-hud', function()
 
 		hunger_smooth = Lerp( 8 * FrameTime(), hunger_smooth or 0, hunger or 0 )
 
-		local PanelHunger = HudDrawIconText( mat_hunger, Retreat + PanelHealth + 15, Retreat, 'fh-font', math.ceil( hunger_smooth ) .. '%' )
+		FrelHudPanelHunger = HudDrawIconText( mat_hunger, Retreat + FrelHudPanelHealth + 15, Retreat, 'fh-font', math.ceil( hunger_smooth ) .. '%' )
 	end
 
 	// ARMOR
@@ -157,7 +157,7 @@ hook.Add( 'HUDPaint', 'Freline-hud', function()
 
 		armor_smooth = Lerp( 8 * FrameTime(), armor_smooth or 0, armor or 0 )
 
-		local PanelArmor = HudDrawIconText( mat_armor, Retreat + PanelHealth + 15 + ( FrelHudConfig.HungerMode and PanelHunger + 15 or 0 ), Retreat, 'fh-font', math.ceil( armor_smooth ) .. '%' )
+		FrelHudPanelArmor = HudDrawIconText( mat_armor, Retreat + FrelHudPanelHealth + 15 + ( FrelHudConfig.HungerMode and FrelHudPanelHunger + 15 or 0 ), Retreat, 'fh-font', math.ceil( armor_smooth ) .. '%' )
 	end
 
 	// MICROPHONE
