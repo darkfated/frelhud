@@ -192,6 +192,10 @@ hook.Add( 'HUDPaint', 'Freline-hud', function()
 
 	if ( wepAmmo > 0 or wepClip > 0 ) then
 		local txt = wepClip .. '/' .. wepAmmo
+			
+		if ( wepClip == -1 ) then
+			txt = wepAmmo
+		end
 
 		HudDrawText( scrw - surface.GetTextSize( txt ) - Retreat - 18, Retreat, 'fh-font', txt )
 	end
